@@ -3,8 +3,6 @@ import numpy as np
 import re
 import random
 
-
-
 """
 函数说明:将切分的实验样本词条整理成不重复的词条列表，也就是词汇表
 Parameters:
@@ -12,6 +10,8 @@ Parameters:
 Returns:
     vocabSet - 返回不重复的词条列表，也就是词汇表
 """
+
+
 def createVocabList(dataSet):
     vocabSet = set([])  # 创建一个空的不重复列表
     for document in dataSet:
@@ -27,14 +27,16 @@ Parameters:
 Returns:
     returnVec - 文档向量,词集模型
 """
+
+
 def setOfWords2Vec(vocabList, inputSet):
-    returnVec = [0] * len(vocabList)               #创建一个其中所含元素都为0的向量
-    for word in inputSet:                          #遍历每个词条
-        if word in vocabList:                      #如果词条存在于词汇表中，则置1
+    returnVec = [0] * len(vocabList)  # 创建一个其中所含元素都为0的向量
+    for word in inputSet:  # 遍历每个词条
+        if word in vocabList:  # 如果词条存在于词汇表中，则置1
             returnVec[vocabList.index(word)] = 1
         else:
             print("the word: %s is not in my Vocabulary!" % word)
-    return returnVec        #返回文档向量
+    return returnVec  # 返回文档向量
 
 
 """
@@ -45,10 +47,12 @@ Parameters:
 Returns:
     returnVec - 文档向量,词袋模型
 """
+
+
 def bagOfWords2VecMN(vocabList, inputSet):
     returnVec = [0] * len(vocabList)  # 创建一个其中所含元素都为0的向量
-    for word in inputSet:             # 遍历每个词条
-        if word in vocabList:         # 如果词条存在于词汇表中，则计数加一
+    for word in inputSet:  # 遍历每个词条
+        if word in vocabList:  # 如果词条存在于词汇表中，则计数加一
             returnVec[vocabList.index(word)] += 1
     return returnVec  # 返回词袋模型
 
@@ -63,6 +67,8 @@ Returns:
     p1Vect - 垃圾邮件类的条件概率数组
     pAbusive - 文档属于垃圾邮件类的概率
 """
+
+
 def trainNB0(trainMatrix, trainCategory):
     numTrainDocs = len(trainMatrix)  # 计算训练的文档数目
     numWords = len(trainMatrix[0])  # 计算每篇文档的词条数
@@ -79,7 +85,7 @@ def trainNB0(trainMatrix, trainCategory):
             p0Num += trainMatrix[i]
             p0Denom += sum(trainMatrix[i])
     p1Vect = np.log(p1Num / p1Denom)
-    p0Vect = np.log(p0Num / p0Denom)   #取对数，防止下溢出
+    p0Vect = np.log(p0Num / p0Denom)  # 取对数，防止下溢出
     return p0Vect, p1Vect, pAbusive  # 返回属于正常邮件类的条件概率数组，属于侮辱垃圾邮件类的条件概率数组，文档属于垃圾邮件类的概率
 
 
@@ -94,27 +100,35 @@ Returns:
 	0 - 属于正常邮件类
 	1 - 属于垃圾邮件类
 """
+
+
 def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
-    #p1 = reduce(lambda x, y: x * y, vec2Classify * p1Vec) * pClass1  # 对应元素相乘
-    #p0 = reduce(lambda x, y: x * y, vec2Classify * p0Vec) * (1.0 - pClass1)
-    p1=sum(vec2Classify*p1Vec)+np.log(pClass1)
-    p0=sum(vec2Classify*p0Vec)+np.log(1.0-pClass1)
+    # p1 = reduce(lambda x, y: x * y, vec2Classify * p1Vec) * pClass1  # 对应元素相乘
+    # p0 = reduce(lambda x, y: x * y, vec2Classify * p0Vec) * (1.0 - pClass1)
+    p1 = sum(vec2Classify * p1Vec) + np.log(pClass1)
+    p0 = sum(vec2Classify * p0Vec) + np.log(1.0 - pClass1)
+    print(f"p0 = {p0:.3}, p1 = {p1:.3}")
     if p1 > p0:
         return 1
     else:
         return 0
 
+
 """
 函数说明:接收一个大字符串并将其解析为字符串列表
 """
+
+
 def textParse(bigString):  # 将字符串转换为字符列表
-    listOfTokens = re.split(r'\W*', bigString)  # 将特殊符号作为切分标志进行字符串切分，即非字母、非数字
+    listOfTokens = re.split(r'\W+', bigString)  # 将特殊符号作为切分标志进行字符串切分，即非字母、非数字
     return [tok.lower() for tok in listOfTokens if len(tok) > 2]  # 除了单个字母，例如大写的I，其它单词变成小写
 
 
 """
 函数说明:测试朴素贝叶斯分类器，使用朴素贝叶斯进行交叉验证
 """
+
+
 def spamTest():
     docList = []
     classList = []
@@ -145,7 +159,7 @@ def spamTest():
     for docIndex in testSet:  # 遍历测试集
         wordVector = setOfWords2Vec(vocabList, docList[docIndex])  # 测试集的词集模型
         if classifyNB(np.array(wordVector), p0V, p1V, pSpam) != classList[docIndex]:  # 如果分类错误
-            errorCount += 1  # 错误计数加1
+            errorCount += 1  # 错误计数加1 
             print("分类错误的测试集：", docList[docIndex])
     print('错误率：%.2f%%' % (float(errorCount) / len(testSet) * 100))
 
